@@ -193,7 +193,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
@@ -256,7 +256,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             default:
             {
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;

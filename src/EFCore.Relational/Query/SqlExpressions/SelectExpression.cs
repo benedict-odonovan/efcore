@@ -573,7 +573,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 shaperExpression = new RelationalGroupByShaperExpression(
                     relationalGroupByShaperExpression.KeySelector,
                     innerShaperExpression,
-                    relationalGroupByShaperExpression.GroupingEnumerable);
+                    relationalGroupByShaperExpression.GroupingEnumerable)
+                {
+                    OwningSelectExpression = relationalGroupByShaperExpression.OwningSelectExpression
+                };
             }
 
             // Convert GroupBy to OrderBy
@@ -1844,7 +1847,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         return new RelationalGroupByShaperExpression(
             keySelector,
             shaperExpression,
-            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression)) { OwningSelectExpression = this };
     }
 
     private static void PopulateGroupByTerms(

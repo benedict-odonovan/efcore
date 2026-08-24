@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -32,6 +34,9 @@ public class RelationalGroupByShaperExpression : GroupByShaperExpression
     ///     The expression representing the element selector for this grouping result.
     /// </summary>
     public virtual Expression ElementSelector { get; }
+
+    // The SelectExpression carrying the GROUP BY this grouping was produced from (set by SelectExpression.ApplyGrouping).
+    internal SelectExpression? OwningSelectExpression { get; init; }
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

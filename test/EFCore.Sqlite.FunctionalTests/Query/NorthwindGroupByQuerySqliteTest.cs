@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -53,9 +52,6 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
     public override Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
         => AssertApplyNotSupported(()
             => base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async));
-
-    public override Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
-        => Assert.ThrowsAsync<SqliteException>(() => base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async));
 
     public override async Task Odata_groupby_empty_key(bool async)
     {

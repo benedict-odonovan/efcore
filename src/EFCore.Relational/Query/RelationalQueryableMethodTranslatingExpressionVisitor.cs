@@ -1659,7 +1659,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected virtual SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
-        => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+    {
+        // Scope the SQL translator to the SelectExpression being composed, so an aggregate over a grouping from an enclosing
+        // query is not folded into this query's GROUP BY (#27130).
+        var previous = _sqlTranslator.CurrentSelectExpression;
+        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression)
+        {
+            _sqlTranslator.CurrentSelectExpression = selectExpression;
+        }
+
+        try
+        {
+            return TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+        }
+        finally
+        {
+            _sqlTranslator.CurrentSelectExpression = previous;
+        }
+    }
 
     /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
