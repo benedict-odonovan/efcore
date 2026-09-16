@@ -146,6 +146,54 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
     }
 
     /// <summary>
+    ///     Grouping by a constant is the workaround for a window over the whole result set rather than over a partition of it.
+    /// </summary>
+    [Fact]
+    public virtual async Task Constant_key()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => 1)
+            .Select(g => new { Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) })
+            .ToListAsync();
+
+        var all = Assert.Single(results);
+        Assert.Equal(5, all.Employees.Count);
+        Assert.Equal(150, all.AverageSalary);
+    }
+
+    /// <summary>
+    ///     A filter applied before the grouping needs no duplicating: the window is evaluated over the rows the query already left.
+    /// </summary>
+    [Fact]
+    public virtual async Task Filter_before_grouping()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .Where(e => e.Salary > 50)
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { g.Key, Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) })
+            .ToListAsync();
+
+        Assert.Collection(
+            results,
+            engineering =>
+            {
+                Assert.Equal(3, engineering.Employees.Count);
+                Assert.Equal(200, engineering.AverageSalary);
+            },
+            sales =>
+            {
+                Assert.Equal(1, sales.Employees.Count);
+                Assert.Equal(100, sales.AverageSalary);
+            });
+    }
+
+    /// <summary>
     ///     Without the opt-in, the same projection keeps the GROUP BY translation it has today.
     /// </summary>
     [Fact]

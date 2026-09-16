@@ -65,6 +65,34 @@ ORDER BY [e].[DepartmentName]
 """);
     }
 
+    public override async Task Constant_key()
+    {
+        await base.Constant_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Key], [e0].[Id], [e0].[Bonus], [e0].[DepartmentName], [e0].[Name], [e0].[Salary], AVG(CAST([e0].[Salary] AS float)) OVER(PARTITION BY [e0].[Key])
+FROM (
+    SELECT [e].[Id], [e].[Bonus], [e].[DepartmentName], [e].[Name], [e].[Salary], 1 AS [Key]
+    FROM [Employees] AS [e]
+) AS [e0]
+ORDER BY [e0].[Key]
+""");
+    }
+
+    public override async Task Filter_before_grouping()
+    {
+        await base.Filter_before_grouping();
+
+        AssertSql(
+            """
+SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Salary] AS float)) OVER(PARTITION BY [e].[DepartmentName])
+FROM [Employees] AS [e]
+WHERE [e].[Salary] > 50
+ORDER BY [e].[DepartmentName]
+""");
+    }
+
     public override async Task Elements_and_aggregate_without_opt_in()
     {
         await base.Elements_and_aggregate_without_opt_in();
