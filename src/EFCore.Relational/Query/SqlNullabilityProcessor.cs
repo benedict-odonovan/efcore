@@ -381,6 +381,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
             JsonScalarExpression jsonScalarExpression
                 => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
+            WindowFunctionExpression windowFunctionExpression
+                => VisitWindowFunction(windowFunctionExpression, allowOptimizedExpansion, out nullable),
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -1210,6 +1212,72 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return changed
             ? rowNumberExpression.Update(partitions, orderings)
             : rowNumberExpression;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="WindowFunctionExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="windowFunctionExpression">A window function expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitWindowFunction(
+        WindowFunctionExpression windowFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        // The window is what the function is evaluated over; it never makes a non-nullable function nullable (an aggregate always has
+        // at least the current row in its partition), nor a nullable one non-nullable. So the nullability is the function's own:
+        // COUNT(...) OVER (...) is never null, while AVG(x) OVER (...) is null for a partition in which every x is null.
+        //
+        // The aggregate's arguments are visited, but the aggregate node itself is not: SQL applies OVER to the aggregate, so nothing
+        // may come between the two, whereas a provider is free to rewrite an aggregate into an expression which wraps it. SQLite, for
+        // one, turns SUM into COALESCE(SUM(...), 0) so that an empty group sums to zero - which a window never needs, its partition
+        // always holding at least the current row.
+        SqlExpression function;
+        if (windowFunctionExpression.Function is SqlFunctionExpression sqlFunctionExpression)
+        {
+            var instance = sqlFunctionExpression.Instance is null ? null : Visit(sqlFunctionExpression.Instance, out _);
+
+            List<SqlExpression>? visitedArguments = null;
+            if (sqlFunctionExpression.Arguments is not null)
+            {
+                visitedArguments = [];
+                foreach (var argument in sqlFunctionExpression.Arguments)
+                {
+                    visitedArguments.Add(Visit(argument, out _));
+                }
+            }
+
+            function = sqlFunctionExpression.Update(instance, visitedArguments);
+            nullable = sqlFunctionExpression.IsNullable;
+        }
+        else
+        {
+            function = Visit(windowFunctionExpression.Function, allowOptimizedExpansion: false, out nullable);
+        }
+
+        var changed = function != windowFunctionExpression.Function;
+
+        var partitions = new List<SqlExpression>();
+        foreach (var partition in windowFunctionExpression.Partitions)
+        {
+            var newPartition = Visit(partition, out _);
+            changed |= newPartition != partition;
+            partitions.Add(newPartition);
+        }
+
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in windowFunctionExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        return changed
+            ? windowFunctionExpression.Update(function, partitions, orderings)
+            : windowFunctionExpression;
     }
 
     /// <summary>

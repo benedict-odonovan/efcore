@@ -37,6 +37,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     private string? _migrationsHistoryTableSchema;
     private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
     private ParameterTranslationMode? _parameterizedCollectionMode;
+    private bool _useWindowFunctionAggregates;
 
     /// <summary>
     ///     Creates a new set of options with everything set to default values.
@@ -65,6 +66,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
         _executionStrategyFactory = copyFrom._executionStrategyFactory;
         _parameterizedCollectionMode = copyFrom._parameterizedCollectionMode;
+        _useWindowFunctionAggregates = copyFrom._useWindowFunctionAggregates;
     }
 
     /// <summary>
@@ -405,6 +407,30 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     }
 
     /// <summary>
+    ///     Whether aggregates projected alongside the elements of a grouping are translated as window functions.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://github.com/dotnet/efcore/issues/12747">the window function issue</see> for more information.
+    /// </remarks>
+    public virtual bool UseWindowFunctionAggregates
+        => _useWindowFunctionAggregates;
+
+    /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="useWindowFunctionAggregates">The option to change.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual RelationalOptionsExtension WithUseWindowFunctionAggregates(bool useWindowFunctionAggregates)
+    {
+        var clone = Clone();
+
+        clone._useWindowFunctionAggregates = useWindowFunctionAggregates;
+
+        return clone;
+    }
+
+    /// <summary>
     ///     Finds an existing <see cref="RelationalOptionsExtension" /> registered on the given options
     ///     or throws if none has been registered. This is typically used to find some relational
     ///     configuration when it is known that a relational provider is being used.
@@ -561,6 +587,11 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                     {
                         builder.Append("ParameterizedCollectionTranslationMode=").Append(Extension._parameterizedCollectionMode)
                             .Append(' ');
+                    }
+
+                    if (Extension._useWindowFunctionAggregates)
+                    {
+                        builder.Append("UseWindowFunctionAggregates ");
                     }
 
                     _logFragment = builder.ToString();

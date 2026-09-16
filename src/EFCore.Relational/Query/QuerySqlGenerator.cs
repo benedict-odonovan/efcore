@@ -153,6 +153,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             UpdateExpression e => VisitUpdate(e),
             JsonScalarExpression e => VisitJsonScalar(e),
             ValuesExpression e => VisitValues(e),
+            WindowFunctionExpression e => VisitWindowFunction(e),
 
             _ => throw new InvalidOperationException(
                 RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
@@ -1350,6 +1351,37 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         _relationalCommandBuilder.Append(")");
 
         return rowNumberExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a window function expression.
+    /// </summary>
+    /// <param name="windowFunctionExpression">The <see cref="WindowFunctionExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitWindowFunction(WindowFunctionExpression windowFunctionExpression)
+    {
+        Visit(windowFunctionExpression.Function);
+
+        _relationalCommandBuilder.Append(" OVER(");
+        if (windowFunctionExpression.Partitions.Any())
+        {
+            _relationalCommandBuilder.Append("PARTITION BY ");
+            GenerateList(windowFunctionExpression.Partitions, e => Visit(e));
+
+            if (windowFunctionExpression.Orderings.Any())
+            {
+                _relationalCommandBuilder.Append(" ");
+            }
+        }
+
+        if (windowFunctionExpression.Orderings.Any())
+        {
+            _relationalCommandBuilder.Append("ORDER BY ");
+            GenerateList(windowFunctionExpression.Orderings, e => Visit(e));
+        }
+
+        _relationalCommandBuilder.Append(")");
+
+        return windowFunctionExpression;
     }
 
     /// <summary>

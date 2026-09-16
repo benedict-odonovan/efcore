@@ -46,7 +46,10 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         : base(dependencies, async, precompiling)
     {
         RelationalDependencies = relationalDependencies;
-        QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;
+
+        var relationalOptions = RelationalOptionsExtension.Extract(ContextOptions);
+        QuerySplittingBehavior = relationalOptions.QuerySplittingBehavior;
+        UseWindowFunctionAggregates = relationalOptions.UseWindowFunctionAggregates;
         SqlAliasManager = relationalDependencies.SqlAliasManagerFactory.Create();
     }
 
@@ -61,6 +64,14 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     ///     will be used.
     /// </summary>
     public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
+
+    /// <summary>
+    ///     A value indicating whether aggregates projected alongside the elements of a grouping are translated as window functions.
+    /// </summary>
+    /// <remarks>
+    ///     See <see cref="RelationalOptionsExtension.UseWindowFunctionAggregates" />.
+    /// </remarks>
+    public virtual bool UseWindowFunctionAggregates { get; }
 
     /// <summary>
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.
