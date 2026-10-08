@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -412,6 +413,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <remarks>
     ///     See <see href="https://github.com/dotnet/efcore/issues/12747">the window function issue</see> for more information.
     /// </remarks>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
     public virtual bool UseWindowFunctionAggregates
         => _useWindowFunctionAggregates;
 
@@ -421,6 +423,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     /// <param name="useWindowFunctionAggregates">The option to change.</param>
     /// <returns>A new instance with the option changed.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
     public virtual RelationalOptionsExtension WithUseWindowFunctionAggregates(bool useWindowFunctionAggregates)
     {
         var clone = Clone();

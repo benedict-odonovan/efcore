@@ -49,7 +49,9 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
         var relationalOptions = RelationalOptionsExtension.Extract(ContextOptions);
         QuerySplittingBehavior = relationalOptions.QuerySplittingBehavior;
+#pragma warning disable EF9001 // Window function support is experimental
         UseWindowFunctionAggregates = relationalOptions.UseWindowFunctionAggregates;
+#pragma warning restore EF9001
         SqlAliasManager = relationalDependencies.SqlAliasManagerFactory.Create();
     }
 
@@ -71,6 +73,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <remarks>
     ///     See <see cref="RelationalOptionsExtension.UseWindowFunctionAggregates" />.
     /// </remarks>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
     public virtual bool UseWindowFunctionAggregates { get; }
 
     /// <summary>

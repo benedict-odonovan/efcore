@@ -907,7 +907,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return null;
         }
 
+#pragma warning disable EF9001 // Window function support is experimental
         var analyzer = new GroupingElementProjectionAnalyzer(groupByShaper, _queryCompilationContext.UseWindowFunctionAggregates);
+#pragma warning restore EF9001
         if (!analyzer.Analyze(projection))
         {
             return null;
@@ -919,6 +921,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // it is for an elements-only projection, and each aggregate is projected as OVER (PARTITION BY <grouping key>), which repeats
         // it on every row of the partition. The element therefore becomes a tuple of the element proper and those window values, and
         // the client selector reads each value back off the first element of the materialized grouping.
+#pragma warning disable EF9001 // Window function support is experimental
         var windowFunctions = Array.Empty<WindowFunctionExpression>();
         if (analyzer.Aggregates.Count > 0)
         {
@@ -944,6 +947,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             elementType = MakeWindowFunctionElementType(elementType, windowFunctions);
         }
+#pragma warning restore EF9001
 
         // Build the client-side selector before anything gets composed into the SelectExpression: composing mutates it, and there's no
         // way back to the correlated subquery translation afterwards.
@@ -989,6 +993,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <summary>
     ///     Builds the type of a grouping element which carries window function values alongside the element itself.
     /// </summary>
+#pragma warning disable EF9001 // Window function support is experimental
     private static Type MakeWindowFunctionElementType(Type elementType, IReadOnlyList<WindowFunctionExpression> windowFunctions)
     {
         var typeArguments = new Type[windowFunctions.Count + 1];
@@ -1000,6 +1005,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return ValueTupleTypes[windowFunctions.Count - 1].MakeGenericType(typeArguments);
     }
+#pragma warning restore EF9001
 
     private Expression? TranslateGroupingKey(Expression expression)
     {

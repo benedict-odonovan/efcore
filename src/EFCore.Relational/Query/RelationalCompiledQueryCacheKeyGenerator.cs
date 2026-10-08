@@ -42,7 +42,9 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             relationalOptions.UseRelationalNulls,
             relationalOptions.QuerySplittingBehavior,
             shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy,
+#pragma warning disable EF9001 // Window function support is experimental
             relationalOptions.UseWindowFunctionAggregates);
+#pragma warning restore EF9001
     }
 
     /// <summary>

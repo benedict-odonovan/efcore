@@ -381,8 +381,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
             JsonScalarExpression jsonScalarExpression
                 => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
+#pragma warning disable EF9001 // Window function support is experimental
             WindowFunctionExpression windowFunctionExpression
                 => VisitWindowFunction(windowFunctionExpression, allowOptimizedExpansion, out nullable),
+#pragma warning restore EF9001
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -1221,6 +1223,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
     protected virtual SqlExpression VisitWindowFunction(
         WindowFunctionExpression windowFunctionExpression,
         bool allowOptimizedExpansion,

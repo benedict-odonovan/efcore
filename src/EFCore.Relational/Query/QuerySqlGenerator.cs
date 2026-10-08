@@ -153,7 +153,9 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             UpdateExpression e => VisitUpdate(e),
             JsonScalarExpression e => VisitJsonScalar(e),
             ValuesExpression e => VisitValues(e),
+#pragma warning disable EF9001 // Window function support is experimental
             WindowFunctionExpression e => VisitWindowFunction(e),
+#pragma warning restore EF9001
 
             _ => throw new InvalidOperationException(
                 RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
@@ -1357,6 +1359,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     ///     Generates SQL for a window function expression.
     /// </summary>
     /// <param name="windowFunctionExpression">The <see cref="WindowFunctionExpression" /> for which to generate SQL.</param>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
     protected virtual Expression VisitWindowFunction(WindowFunctionExpression windowFunctionExpression)
     {
         Visit(windowFunctionExpression.Function);
