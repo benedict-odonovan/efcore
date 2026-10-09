@@ -41,7 +41,10 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             base.GenerateCacheKeyCore(query, async),
             relationalOptions.UseRelationalNulls,
             relationalOptions.QuerySplittingBehavior,
-            shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
+            shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy,
+#pragma warning disable EF9001 // Window function support is experimental
+            relationalOptions.UseWindowFunctionAggregates);
+#pragma warning restore EF9001
     }
 
     /// <summary>
@@ -60,6 +63,7 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
         private readonly bool _useRelationalNulls;
         private readonly QuerySplittingBehavior? _querySplittingBehavior;
         private readonly bool _shouldBuffer;
+        private readonly bool _useWindowFunctionAggregates;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
@@ -73,11 +77,32 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             bool useRelationalNulls,
             QuerySplittingBehavior? querySplittingBehavior,
             bool shouldBuffer)
+            : this(compiledQueryCacheKey, useRelationalNulls, querySplittingBehavior, shouldBuffer, useWindowFunctionAggregates: false)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
+        /// </summary>
+        /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
+        /// <param name="useRelationalNulls">True to use relational null logic.</param>
+        /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
+        /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
+        /// <param name="useWindowFunctionAggregates">
+        ///     <see langword="true" /> if aggregates projected alongside the elements of a grouping are translated as window functions.
+        /// </param>
+        public RelationalCompiledQueryCacheKey(
+            CompiledQueryCacheKey compiledQueryCacheKey,
+            bool useRelationalNulls,
+            QuerySplittingBehavior? querySplittingBehavior,
+            bool shouldBuffer,
+            bool useWindowFunctionAggregates)
         {
             _compiledQueryCacheKey = compiledQueryCacheKey;
             _useRelationalNulls = useRelationalNulls;
             _querySplittingBehavior = querySplittingBehavior;
             _shouldBuffer = shouldBuffer;
+            _useWindowFunctionAggregates = useWindowFunctionAggregates;
         }
 
         /// <inheritdoc />
@@ -90,11 +115,12 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
                 && _useRelationalNulls == other._useRelationalNulls
                 && _querySplittingBehavior == other._querySplittingBehavior
-                && _shouldBuffer == other._shouldBuffer;
+                && _shouldBuffer == other._shouldBuffer
+                && _useWindowFunctionAggregates == other._useWindowFunctionAggregates;
 
         /// <inheritdoc />
         public override int GetHashCode()
             => HashCode.Combine(
-                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
+                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer, _useWindowFunctionAggregates);
     }
 }

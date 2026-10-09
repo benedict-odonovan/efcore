@@ -8949,6 +8949,10 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression VisitValues(Microsoft.EntityFrameworkCore.Query.SqlExpressions.ValuesExpression valuesExpression);"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression VisitWindowFunction(Microsoft.EntityFrameworkCore.Query.SqlExpressions.WindowFunctionExpression windowFunctionExpression);",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
@@ -9907,6 +9911,9 @@
           "Member": "RelationalCompiledQueryCacheKey(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator.CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls, Microsoft.EntityFrameworkCore.QuerySplittingBehavior? querySplittingBehavior, bool shouldBuffer);"
         },
         {
+          "Member": "RelationalCompiledQueryCacheKey(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator.CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls, Microsoft.EntityFrameworkCore.QuerySplittingBehavior? querySplittingBehavior, bool shouldBuffer, bool useWindowFunctionAggregates);"
+        },
+        {
           "Member": "RelationalCompiledQueryCacheKey();"
         },
         {
@@ -10820,6 +10827,10 @@
         },
         {
           "Member": "virtual TBuilder UseRelationalNulls(bool useRelationalNulls = true);"
+        },
+        {
+          "Member": "virtual TBuilder UseWindowFunctionAggregates(bool useWindowFunctionAggregates = true);",
+          "Stage": "Experimental"
         },
         {
           "Member": "virtual TBuilder WithOption(System.Func<TExtension, TExtension> setAction);"
@@ -13506,6 +13517,10 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension WithUseRelationalNulls(bool useRelationalNulls);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension WithUseWindowFunctionAggregates(bool useWindowFunctionAggregates);",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
@@ -13553,6 +13568,10 @@
         },
         {
           "Member": "virtual bool UseRelationalNulls { get; }"
+        },
+        {
+          "Member": "virtual bool UseWindowFunctionAggregates { get; }",
+          "Stage": "Experimental"
         }
       ]
     },
@@ -14436,6 +14455,10 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlAliasManager SqlAliasManager { get; }"
+        },
+        {
+          "Member": "virtual bool UseWindowFunctionAggregates { get; }",
+          "Stage": "Experimental"
         }
       ]
     },
@@ -17899,6 +17922,10 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitSqlUnary(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlUnaryExpression sqlUnaryExpression, bool allowOptimizedExpansion, out bool nullable);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitWindowFunction(Microsoft.EntityFrameworkCore.Query.SqlExpressions.WindowFunctionExpression windowFunctionExpression, bool allowOptimizedExpansion, out bool nullable);",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
@@ -19326,6 +19353,34 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ViewColumnBuilder<TProperty> HasColumnName(string? name);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.WindowFunctionExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "WindowFunctionExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression function, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression>? partitions, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression>? orderings, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.WindowFunctionExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression function, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> partitions, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> orderings);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Function { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> Orderings { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> Partitions { get; }",
+          "Stage": "Experimental"
         }
       ]
     }
