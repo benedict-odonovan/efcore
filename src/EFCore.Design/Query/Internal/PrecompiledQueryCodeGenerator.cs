@@ -170,6 +170,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _code
             .AppendLine()
             .AppendLine("#pragma warning disable EF9100 // Precompiled query is experimental")
+            .AppendLine("#pragma warning disable EF9001 // The query may use experimental APIs, e.g. window functions")
             .AppendLine()
             .Append("namespace ").AppendLine(InterceptorsNamespace)
             .AppendLine("{")
