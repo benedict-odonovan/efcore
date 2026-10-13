@@ -3581,13 +3581,13 @@ ORDER BY [c].[CountryId], [c].[Id]
 """,
             //
             """
-SELECT [c].[CountryId], [c].[Id]
+SELECT [c].[CountryId], DENSE_RANK() OVER(ORDER BY [c].[CountryId]), [c].[Id]
 FROM [Companies] AS [c]
 ORDER BY [c].[CountryId]
 """,
             //
             """
-SELECT [c].[CountryId], [c].[Id]
+SELECT [c].[CountryId], [c].[Id], DENSE_RANK() OVER(ORDER BY [c].[CountryId], [c].[Id])
 FROM [Companies] AS [c]
 ORDER BY [c].[CountryId], [c].[Id]
 """);

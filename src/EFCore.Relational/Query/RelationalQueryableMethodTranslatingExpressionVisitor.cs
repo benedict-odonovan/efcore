@@ -986,6 +986,21 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 : groupByShaper.ElementSelector;
         }
 
+        // With the GROUP BY gone, the groupings are assembled on the client from rows ordered by the grouping key, starting a new one
+        // whenever the key changes. Comparing the key on the client would use CLR equality, which can disagree with the database's: under
+        // a case-insensitive collation "Sales" and "sales" are one group (and one window partition) to the database, but two to the
+        // client. So the database numbers the groups itself, ranking the rows by the very terms it groups them by.
+        var denseRank = _sqlExpressionFactory.ApplyDefaultTypeMapping(
+            _sqlExpressionFactory.Function("DENSE_RANK", [], nullable: false, argumentsPropagateNullability: [], typeof(long)));
+#pragma warning disable EF9001 // Window function support is experimental
+        selectExpression.ApplyGroupIdentifier(
+            new WindowFunctionExpression(
+                denseRank,
+                partitions: null,
+                selectExpression.GroupBy.Select(t => new OrderingExpression(t, ascending: true)).ToArray(),
+                typeMapping: null));
+#pragma warning restore EF9001
+
         return source.UpdateShaperExpression(
             new RelationalGroupByShaperExpression(
                 groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector));

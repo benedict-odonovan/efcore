@@ -2886,7 +2886,7 @@ GROUP BY [e].[EmployeeID]
 
         AssertSql(
             """
-SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[City], DENSE_RANK() OVER(ORDER BY [c].[City]), [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[City]
 """);
@@ -2898,7 +2898,7 @@ ORDER BY [c].[City]
 
         AssertSql(
             """
-SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[City], DENSE_RANK() OVER(ORDER BY [c].[City]), [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[City]
 """);
@@ -2955,7 +2955,7 @@ ORDER BY [c1].[City], [c0].[CustomerID]
 
         AssertSql(
             """
-SELECT [e].[ReportsTo], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
+SELECT [e].[ReportsTo], DENSE_RANK() OVER(ORDER BY [e].[ReportsTo]), [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[ReportsTo]
 """);
@@ -2967,7 +2967,7 @@ ORDER BY [e].[ReportsTo]
 
         AssertSql(
             """
-SELECT [e].[ReportsTo], [e].[EmployeeID]
+SELECT [e].[ReportsTo], DENSE_RANK() OVER(ORDER BY [e].[ReportsTo]), [e].[EmployeeID]
 FROM [Employees] AS [e]
 ORDER BY [e].[ReportsTo]
 """);
@@ -2979,7 +2979,7 @@ ORDER BY [e].[ReportsTo]
 
         AssertSql(
             """
-SELECT [e].[ReportsTo], [e].[EmployeeID]
+SELECT [e].[ReportsTo], DENSE_RANK() OVER(ORDER BY [e].[ReportsTo]), [e].[EmployeeID]
 FROM [Employees] AS [e]
 ORDER BY [e].[ReportsTo]
 """);
@@ -4023,7 +4023,7 @@ WHERE [o0].[OrderID] = [t].[c]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[OrderID]
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID]), [o].[OrderID]
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]
 """);
@@ -4133,7 +4133,7 @@ ORDER BY [o1].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[OrderID]
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID]), [o].[OrderID]
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]
 """);
@@ -4145,7 +4145,7 @@ ORDER BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[OrderID]
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID]), [o].[OrderID]
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]
 """);
@@ -4157,7 +4157,7 @@ ORDER BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[OrderID]
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID]), [o].[OrderID]
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]
 """);
@@ -4227,7 +4227,7 @@ ORDER BY [o1].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID]
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID])
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]
 """);
